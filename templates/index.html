@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbot</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body class="bg-gray-100">
     <div class="container mx-auto my-10">
@@ -22,24 +21,32 @@
     </div>
 
     <script>
-        $(document).ready(function() {
-            $("#chat-form").on("submit", function(event) {
+        document.addEventListener("DOMContentLoaded", function() {
+            const chatForm = document.getElementById("chat-form");
+            const chatContainer = document.getElementById("chat-container");
+            const userQuestionInput = document.getElementById("user-question");
+
+            chatForm.addEventListener("submit", async function(event) {
                 event.preventDefault();
-                const userQuestion = $("#user-question").val();
+                const userQuestion = userQuestionInput.value;
                 if (userQuestion) {
-                    $("#chat-container").append(`<p class="mb-2"><span class="font-bold">User:</span> ${userQuestion}</p>`);
-                    $.ajax({
-                        url: "/get_response",
-                        method: "POST",
-                        data: {user_question: userQuestion},
-                        success: function(data) {
-                            $("#chat-container").append(`<p class="mb-2"><span class="font-bold">Chatbot:</span> ${data.response}</p>`);
-                        },
-                        error: function() {
-                            alert("An error occurred. Please try again.");
-                        }
-                    });
-                    $("#user-question").val("");
+                    chatContainer.insertAdjacentHTML("beforeend", `<p class="mb-2"><span class="font-bold">User:</span> ${userQuestion}</p>`);
+                    
+                    try {
+                        const response = await fetch("/get_response", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/x-www-form-urlencoded"
+                            },
+                            body: new URLSearchParams({user_question: userQuestion})
+                        });
+                        const data = await response.json();
+                        chatContainer.insertAdjacentHTML("beforeend", `<p class="mb-2"><span class="font-bold">Chatbot:</span> ${data.response}</p>`);
+                    } catch (error) {
+                        alert("An error occurred. Please try again.");
+                    }
+
+                    userQuestionInput.value = "";
                 }
             });
         });
