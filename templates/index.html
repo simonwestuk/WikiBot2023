@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto my-10">
+        <h1 class="text-center text-3xl font-bold mb-10">Chatbot</h1>
+        <div class="bg-white shadow rounded-lg p-8">
+            <div id="chat-container" class="h-72 overflow-y-auto mb-6 border border-gray-200 p-4 rounded">
+                <!-- Chat messages will be displayed here -->
+            </div>
+            <form id="chat-form" class="flex">
+                <input type="text" id="user-question" placeholder="Type your question here..." class="flex-grow px-4 py-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-600">
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50">Send</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $("#chat-form").on("submit", function(event) {
+                event.preventDefault();
+                const userQuestion = $("#user-question").val();
+                if (userQuestion) {
+                    $("#chat-container").append(`<p class="mb-2"><span class="font-bold">User:</span> ${userQuestion}</p>`);
+                    $.ajax({
+                        url: "/get_response",
+                        method: "POST",
+                        data: {user_question: userQuestion},
+                        success: function(data) {
+                            $("#chat-container").append(`<p class="mb-2"><span class="font-bold">Chatbot:</span> ${data.response}</p>`);
+                        },
+                        error: function() {
+                            alert("An error occurred. Please try again.");
+                        }
+                    });
+                    $("#user-question").val("");
+                }
+            });
+        });
+    </script>
+</body>
+</html>
